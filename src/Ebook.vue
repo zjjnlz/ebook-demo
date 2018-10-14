@@ -9,7 +9,7 @@
                <div class="right" @click="nextPage"></div>
            </div>
        </div>
-       <menu-bar :ifTitleAndMenuShow = "ifTitleAndMenuShow"></menu-bar>
+       <menu-bar :ifTitleAndMenuShow = "ifTitleAndMenuShow" :fontSizeList = "fontSizeList" :defaultFontSize = "defaultFontSize" @setFontSize = "setFontSize" ref="menuBar"></menu-bar>
    </div>
 </template>
 
@@ -18,7 +18,7 @@ import TitleBar from '@/components/TitleBar.vue'
 import MenuBar from '@/components/MenuBar.vue'
 import Epub from 'epubjs'
 global.ePub = Epub
-const DOWNLOAD_URL = '/static/2018_Book_AgileProcessesInSoftwareEngine.epub'
+const DOWNLOAD_URL = '/static/计算的本质.epub'
 export default {
   components: {
     TitleBar,
@@ -26,12 +26,31 @@ export default {
   },
   data () {
     return {
-      ifTitleAndMenuShow: false
+      ifTitleAndMenuShow: false,
+      fontSizeList: [
+        { fontSize: 12 },
+        { fontSize: 14 },
+        { fontSize: 16 },
+        { fontSize: 18 },
+        { fontSize: 20 },
+        { fontSize: 22 },
+        { fontSize: 24 }
+      ],
+      defaultFontSize: 16
     }
   },
   methods: {
+    setFontSize (fontSize) {
+      this.defaultFontSize = fontSize
+      if (this.themes) {
+        this.themes.fontSize(fontSize + 'px')
+      }
+    },
     toggleTitleAndMenu () {
       this.ifTitleAndMenuShow = !this.ifTitleAndMenuShow
+      if (!this.ifTitleAndMenuShow) {
+        this.$refs.menuBar.hideSetting()
+      }
     },
     prevPage () {
       // Rendtition.prev
@@ -57,6 +76,10 @@ export default {
       })
       // 通过Rendition.display来渲染电子书
       this.rendition.display()
+      // 获取一个Theme对象
+      this.themes = this.rendition.themes
+      // 设置默认字体
+      this.setFontSize(this.defaultFontSize)
     }
   },
   mounted () {
