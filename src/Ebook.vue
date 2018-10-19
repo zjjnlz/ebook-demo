@@ -9,7 +9,15 @@
                <div class="right" @click="nextPage"></div>
            </div>
        </div>
-       <menu-bar :ifTitleAndMenuShow = "ifTitleAndMenuShow" :fontSizeList = "fontSizeList" :defaultFontSize = "defaultFontSize" @setFontSize = "setFontSize" ref="menuBar"></menu-bar>
+       <menu-bar :ifTitleAndMenuShow = "ifTitleAndMenuShow"
+       :fontSizeList = "fontSizeList"
+       :defaultFontSize = "defaultFontSize"
+       @setFontSize = "setFontSize"
+       ref="menuBar"
+       :themesList = "themesList"
+       :defaultTheme = "defaultTheme"
+       @setTheme = "setTheme"
+       ></menu-bar>
    </div>
 </template>
 
@@ -36,10 +44,54 @@ export default {
         { fontSize: 22 },
         { fontSize: 24 }
       ],
-      defaultFontSize: 16
+      defaultFontSize: 16,
+      themesList: [
+        {
+          name: 'default',
+          style: {
+            body: {
+              'color': '#000', 'background': '#fff'
+            }
+          }
+        },
+        {
+          name: 'eye',
+          style: {
+            body: {
+              'color': '#000', 'background': '#ceeaba'
+            }
+          }
+        },
+        {
+          name: 'gold',
+          style: {
+            body: {
+              'color': '#000', 'background': 'rgb(241, 236, 226)'
+            }
+          }
+        },
+        {
+          name: 'night',
+          style: {
+            body: {
+              'color': '#fff', 'background': '#000'
+            }
+          }
+        }
+      ],
+      defaultTheme: 0
     }
   },
   methods: {
+    setTheme (index) {
+      this.themes.select(this.themesList[index].name)
+      this.defaultTheme = index
+    },
+    regiseterTheme () {
+      this.themesList.forEach(theme => {
+        this.themes.register(theme.name, theme.style)
+      })
+    },
     setFontSize (fontSize) {
       this.defaultFontSize = fontSize
       if (this.themes) {
@@ -80,6 +132,10 @@ export default {
       this.themes = this.rendition.themes
       // 设置默认字体
       this.setFontSize(this.defaultFontSize)
+      // this.themes.register(name, styles)
+      // this.themes.select(name)
+      this.regiseterTheme()
+      this.setTheme(this.defaultTheme)
     }
   },
   mounted () {
