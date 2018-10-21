@@ -9,16 +9,18 @@
                <div class="right" @click="nextPage"></div>
            </div>
        </div>
-       <menu-bar :ifTitleAndMenuShow = "ifTitleAndMenuShow"
-       :fontSizeList = "fontSizeList"
-       :defaultFontSize = "defaultFontSize"
-       @setFontSize = "setFontSize"
-       ref="menuBar"
-       :themesList = "themesList"
-       :defaultTheme = "defaultTheme"
-       @setTheme = "setTheme"
-       :bookAvailable = "bookAvailable"
-       @onProgressChange = "onProgressChange"
+       <menu-bar  :ifTitleAndMenuShow = "ifTitleAndMenuShow"
+                  :fontSizeList = "fontSizeList"
+                  :defaultFontSize = "defaultFontSize"
+                  @setFontSize = "setFontSize"
+                  ref="menuBar"
+                  :themesList = "themesList"
+                  :defaultTheme = "defaultTheme"
+                  @setTheme = "setTheme"
+                  :bookAvailable = "bookAvailable"
+                  @onProgressChange = "onProgressChange"
+                  :navigation = "navigation"
+                  @jumpTo = "jumpTo"
        ></menu-bar>
    </div>
 </template>
@@ -83,10 +85,24 @@ export default {
       ],
       defaultTheme: 0,
       // 图书是否处于可用状态
-      bookAvailable: false
+      bookAvailable: false,
+      navigation: {}
     }
   },
   methods: {
+    // 根据链接跳转到指定位置
+    jumpTo (href) {
+      this.rendition.display(href)
+      this.hideTitleAndMenu()
+    },
+    hideTitleAndMenu () {
+      // 隐藏标题栏和菜单栏
+      this.ifTitleAndMenuShow = false
+      // 隐藏菜单栏弹出的设置栏
+      this.$refs.menuBar.hideSetting()
+      // 隐藏目录
+      this.$refs.menuBar.hideContent()
+    },
     // progress 进度条的数值（0-100）
     onProgressChange (progress) {
       const percentage = progress / 100
@@ -150,9 +166,12 @@ export default {
       // console.log(this.book.locations)
       // 通过epubjs的钩子函数来实现
       this.book.ready.then(() => {
+        this.navigation = this.book.navigation
         return this.book.locations.generate()
       }).then(result => {
+        // 保存locations对象
         this.locations = this.book.locations
+        // 标记电子书解析完毕的状态
         this.bookAvailable = true
         // 测试：跳转到书中间部分
         // this.rendition.display(50)

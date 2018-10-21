@@ -3,7 +3,7 @@
         <transition name="slide-up">
             <div class="menu-wrapper" :class="{'hide-box-shadow': ifSettingShow || !ifTitleAndMenuShow}" v-show="ifTitleAndMenuShow" >
                 <div class="icon-wrapper">
-                    <span class="icon-menu icon"></span>
+                    <span class="icon-menu icon" @click="showSetting(3)"></span>
                 </div>
                 <div class="icon-wrapper">
                     <span class="icon-progress icon" @click="showSetting(2)"></span>
@@ -59,11 +59,25 @@
                 </div>
             </div>
         </transition>
+        <content-view :ifShowContent = "ifShowContent"
+                        v-show = "ifShowContent"
+                        :navigation = "navigation"
+                        :bookAvailable = "bookAvailable"
+                        @jumpTo = "jumpTo"></content-view>
+        <transition name="fade">
+            <div class="content-mask"
+                v-show = "ifShowContent"
+                @click = "hideContent"></div>
+        </transition>
     </div>
 </template>
 
 <script>
+import ContentView from '@/components/ContentView'
 export default {
+  components: {
+    ContentView
+  },
   props: {
     ifTitleAndMenuShow: {
       type: Boolean,
@@ -76,16 +90,26 @@ export default {
     bookAvailable: {
       type: Boolean,
       default: false
-    }
+    },
+    navigation: Object
   },
   data () {
     return {
       ifSettingShow: false,
       showTag: 0,
-      progress: 0
+      progress: 0,
+      ifShowContent: false
     }
   },
   methods: {
+    //   隐藏目录
+    hideContent () {
+      this.ifShowContent = false
+    },
+    //   跳转方法，调用父组件方法
+    jumpTo (target) {
+      this.$emit('jumpTo', target)
+    },
     //   拖动进度条时触发
     onProgressInput (progress) {
       this.progress = progress
@@ -103,8 +127,13 @@ export default {
       this.$emit('setFontSize', fontSize)
     },
     showSetting (tag) {
-      this.ifSettingShow = true
       this.showTag = tag
+      if (this.showTag === 3) {
+        this.ifSettingShow = false
+        this.ifShowContent = true
+      } else {
+        this.ifSettingShow = true
+      }
     },
     hideSetting () {
       this.ifSettingShow = false
@@ -281,6 +310,16 @@ export default {
                 text-align: center;
             }
         }
+    }
+    .content-mask {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 101;
+        display: flex;
+        width: 100%;
+        height: 100%;
+        background: rgba(51, 51, 51, .8)
     }
 }
 </style>
